@@ -1,8 +1,22 @@
-require("marco.init")
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
+end
 
+vim.opt.rtp:prepend(lazypath)
 
+-- Keymaps (important to call before lazy's plugins' setup cuz sets [vim.g.mapleader= " "] the leader key!!! WHICH HAS TO BE SET BEFORE LAZY PLUGINS!!!)
+require("remap")  -- Now it works because remap.lua is inside lua/
 
-
+-- Point to your plugin spec module
+require("lazy").setup("plugins")  -- Requires all the files in the plugins/ directory
 
 function DebugBuildAndRun()
     -- Save the current file
