@@ -1,3 +1,12 @@
+vim.opt.termguicolors = false
+vim.loader.enable()
+
+
+vim.opt.swapfile = false         -- no .swp files
+vim.opt.backup = false           -- no extra file copy
+vim.opt.writebackup = true       -- safe write to temp file first, then replace
+vim.opt.updatetime = 200
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -84,31 +93,7 @@ function DebugBuildAndRun()
         return
     end
 
-    -- Search for the executable in the bin_dir
-    local files = vim.fn.glob(vim.fs.joinpath(bin_dir, "*.exe"), false, true)
-    if #files == 0 then
-        vim.notify("No executables found in " .. bin_dir, vim.log.levels.ERROR)
-        return
-    end
-
-    -- Pick the first executable
-    local executable = files[1]
-    --vim.notify("Found executable: " .. executable, vim.log.levels.INFO)
-
-    -- Run the executable in Alacritty
-    local alacritty_path = "C:/Program Files/Alacritty/alacritty.exe"
-    if vim.fn.executable(alacritty_path) == 0 then
-        vim.notify("Alacritty not found at " .. alacritty_path, vim.log.levels.ERROR)
-        return
-    end
-
-    local command = string.format(
-        'start "" "%s" -e cmd /k "%s & pause"',
-        alacritty_path,
-        executable
-    )
-    --vim.notify("Running: " .. command, vim.log.levels.INFO)
-    vim.fn.system(command)
+    Run("Debug");
 end
 
 function ReleaseBuildAndRun()
@@ -165,66 +150,38 @@ function ReleaseBuildAndRun()
         return
     end
 
-    -- Search for the executable in the bin_dir
-    local files = vim.fn.glob(vim.fs.joinpath(bin_dir, "*.exe"), false, true)
-    if #files == 0 then
-        vim.notify("No executables found in " .. bin_dir, vim.log.levels.ERROR)
-        return
-    end
-
-    -- Pick the first executable
-    local executable = files[1]
-    --vim.notify("Found executable: " .. executable, vim.log.levels.INFO)
-
-    -- Run the executable in Alacritty
-    local alacritty_path = "C:/Program Files/Alacritty/alacritty.exe"
-    if vim.fn.executable(alacritty_path) == 0 then
-        vim.notify("Alacritty not found at " .. alacritty_path, vim.log.levels.ERROR)
-        return
-    end
-
-    local command = string.format(
-        'start "" "%s" -e cmd /k "%s & pause"',
-        alacritty_path,
-        executable
-    )
-    --vim.notify("Running: " .. command, vim.log.levels.INFO)
-    vim.fn.system(command)
+    Run("Release");
 end
 
 
 function Run(build_type)
     -- Validate the build type, default to 'Debug' if invalid
     if build_type ~= "Debug" and build_type ~= "Release" then
-        build_type = "Debug"  -- Default to Debug if invalid argument
+	build_type = "Debug"  -- Default to Debug if invalid argument
     end
 
     -- Get the directory of the currently open file
     local root_dir = vim.fn.expand('%:p:h')
     local build_dir = root_dir .. "\\build\\bin\\" .. build_type:lower()  -- Use lowercase for consistency (e.g., 'debug' or 'release')
 
-    local executable = nil
-    local files = vim.fn.glob(build_dir .. "\\*.exe", false, true)  -- glob returns a table of file paths
-
-    -- Debugging output to confirm files found
-    --[[if #files > 0 then
-	print("Files found: ")
-	for _, file in ipairs(files) do
-	    print(file)  -- Print each file path
-	end
-    else
-	print("No executables found in " .. build_dir)
-    end]]
-
-    -- If files found, pick the first one
-    if #files > 0 then
-	executable = files[1]  -- Use the first executable found
-	-- If an executable is found, run it using Alacritty
-	local command = 'start "" "C:/Program Files/Alacritty/alacritty.exe" -e cmd /k "' .. executable .. ' & pause"'
-	vim.fn.system(command)
-    else
-	print("No executable found in " .. build_dir)
+    -- Search for the executable in the bin_dir
+    local files = vim.fn.glob(vim.fs.joinpath(build_dir, "*.exe"), false, true)
+    if #files == 0 then
+	vim.notify("No executables found in " .. build_dir, vim.log.levels.ERROR)
+	return
     end
+
+    -- Pick the first executable
+    local executable = files[1]
+    vim.notify("Found executable: " .. executable, vim.log.levels.INFO)
+
+    -- Escape backslashes (Lua-style)
+    executable = executable:gsub("\\", "\\\\")
+
+    -- Open a terminal directly running the .exe
+    vim.cmd("vsplit")
+    -- Terminal directly runs the .exe
+    vim.cmd("terminal " .. executable)
 end
 
 

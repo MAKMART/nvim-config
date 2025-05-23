@@ -1,25 +1,21 @@
 return {
-    "kepano/flexoki-neovim",
+    "sainnhe/sonokai",
+    priority = 1000, -- load early to avoid flash
+    init = function()
+	-- Set Sonokai style (optional, you can choose one)
+	vim.g.sonokai_style = "default"
+    end,
     config = function()
-	local function set_bk(color)
-	    color = color or "flexoki-dark"
-
-	    if type(color) == "string" then
-		local ok, err = pcall(vim.cmd.colorscheme, color)
-		if not ok then
-		    vim.notify("Colorscheme '" .. color .. "' not found: " .. err, vim.log.levels.ERROR)
-		    return
-		end
-	    else
-		vim.notify("Invalid colorscheme name (not a string)", vim.log.levels.ERROR)
-		return
-	    end
-
-	    vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-	    vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+	-- Apply the colorscheme
+	local ok, err = pcall(vim.cmd.colorscheme, "sonokai")
+	if not ok then
+	    vim.notify("Colorscheme 'sonokai' not found: " .. err, vim.log.levels.ERROR)
+	    return
 	end
 
-	set_bk("flexoki-dark")
+	-- Transparent background
+	--vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+	--vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
     end,
     --[[function set_bk()
 	-- Get a list of all available color schemes
