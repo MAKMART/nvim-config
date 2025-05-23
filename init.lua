@@ -7,6 +7,29 @@ vim.opt.backup = false           -- no extra file copy
 vim.opt.writebackup = true       -- safe write to temp file first, then replace
 vim.opt.updatetime = 200
 
+
+-- Disable arrow keys
+vim.keymap.set('', '<Up>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
+vim.keymap.set('', '<Down>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
+vim.keymap.set('', '<Left>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
+vim.keymap.set('', '<Right>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
+
+-- Keybindings for folding
+vim.api.nvim_set_keymap('n', '<leader>zR', ':normal! zR<CR>', { noremap = true, silent = true })  -- Open all folds
+vim.api.nvim_set_keymap('n', '<leader>zM', ':normal! zM<CR>', { noremap = true, silent = true })  -- Close all folds
+vim.api.nvim_set_keymap('n', '<leader>zo', ':normal! zo<CR>', { noremap = true, silent = true })  -- Open fold under cursor
+vim.api.nvim_set_keymap('n', '<leader>zc', ':normal! zc<CR>', { noremap = true, silent = true })  -- Close fold under cursor
+
+-- Options
+vim.wo.relativenumber = true
+vim.wo.number = true
+vim.wo.signcolumn = "number"
+vim.opt.shiftwidth = 4
+-- Enable folding based on syntax (works well for most languages)
+vim.opt.foldmethod = 'syntax'
+vim.opt.foldlevelstart = 99  -- Start with all folds open
+
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -42,29 +65,8 @@ require("lazy").setup("plugins")  -- Requires all the files in the plugins/ dire
 function DebugBuildAndRun()
     -- Save the current file
     vim.cmd("w")
-
-    -- Debug: Check if vim.fn is available
-    if not vim.fn then
-        vim.notify("Error: vim.fn is nil or undefined", vim.log.levels.ERROR)
-        return
-    end
-
     -- Get the directory of the currently open file
-    local root_dir
-    if type(vim.fn.expand) == "function" then
-        root_dir = vim.fn.expand("%:p:h")
-    else
-        vim.notify("Error: vim.fn.expand is not a function, using fallback", vim.log.levels.WARN)
-        -- Fallback: Use vim.api.nvim_buf_get_name and vim.fs.dirname
-        local buf_name = vim.api.nvim_buf_get_name(0)
-        root_dir = vim.fs.dirname(buf_name)
-        if not root_dir then
-            vim.notify("Error: Could not determine root directory", vim.log.levels.ERROR)
-            return
-        end
-    end
-
-    -- Construct paths
+    local root_dir = vim.fn.expand("%:p:h")
     local build_dir = vim.fs.joinpath(root_dir, "build")
     local bin_dir = vim.fs.joinpath(build_dir, "bin", "Debug")
     local cmake_file = vim.fs.joinpath(root_dir, "CMakeLists.txt")
@@ -75,53 +77,31 @@ function DebugBuildAndRun()
         return
     end
 
-    -- Run CMake to generate build files
-    local cmake_cmd = string.format('cmake -G Ninja -B "%s" -DCMAKE_BUILD_TYPE=Debug "%s"', build_dir, root_dir)
-    vim.notify(cmake_cmd, vim.log.levels.INFO)
-    local cmake_result = vim.fn.system(cmake_cmd)
-    if vim.v.shell_error ~= 0 then
-        vim.notify(cmake_result, vim.log.levels.ERROR)
-        return
+    -- Get first .exe path if it exists
+    local files = vim.fn.glob(vim.fs.joinpath(bin_dir, "*.exe"), false, true)
+    local exe = (#files > 0) and files[1] or nil
+    if exe then
+        exe = exe:gsub("\\", "\\\\") -- Escape backslashes
     end
 
-    -- Run Ninja to build the project
-    local ninja_cmd = string.format('ninja -C "%s"', build_dir)
-    vim.notify(ninja_cmd, vim.log.levels.INFO)
-    local ninja_result = vim.fn.system(ninja_cmd)
-    if vim.v.shell_error ~= 0 then
-        vim.notify(ninja_result, vim.log.levels.ERROR)
-        return
-    end
+    -- Construct terminal shell command
+    local cmd = table.concat({
+        string.format('cmake -G Ninja -B "%s" -DCMAKE_BUILD_TYPE=Debug "%s"', build_dir, root_dir),
+        string.format('ninja -C "%s"', build_dir),
+        exe and exe or "echo No executable found"
+    }, " && ")
 
-    Run("Debug");
+    -- Open vertical split terminal
+    vim.cmd("vsplit")
+    vim.cmd("terminal " .. cmd)
 end
+
 
 function ReleaseBuildAndRun()
     -- Save the current file
     vim.cmd("w")
-
-    -- Debug: Check if vim.fn is available
-    if not vim.fn then
-        vim.notify("Error: vim.fn is nil or undefined", vim.log.levels.ERROR)
-        return
-    end
-
     -- Get the directory of the currently open file
-    local root_dir
-    if type(vim.fn.expand) == "function" then
-        root_dir = vim.fn.expand("%:p:h")
-    else
-        vim.notify("Error: vim.fn.expand is not a function, using fallback", vim.log.levels.WARN)
-        -- Fallback: Use vim.api.nvim_buf_get_name and vim.fs.dirname
-        local buf_name = vim.api.nvim_buf_get_name(0)
-        root_dir = vim.fs.dirname(buf_name)
-        if not root_dir then
-            vim.notify("Error: Could not determine root directory", vim.log.levels.ERROR)
-            return
-        end
-    end
-
-    -- Construct paths
+    local root_dir = vim.fn.expand("%:p:h")
     local build_dir = vim.fs.joinpath(root_dir, "build")
     local bin_dir = vim.fs.joinpath(build_dir, "bin", "Release")
     local cmake_file = vim.fs.joinpath(root_dir, "CMakeLists.txt")
@@ -131,26 +111,24 @@ function ReleaseBuildAndRun()
         vim.notify("Error: CMakeLists.txt not found in " .. root_dir, vim.log.levels.ERROR)
         return
     end
-
-    -- Run CMake to generate build files
-    local cmake_cmd = string.format('cmake -G Ninja -B "%s" -DCMAKE_BUILD_TYPE=Release "%s"', build_dir, root_dir)
-    vim.notify(cmake_cmd, vim.log.levels.INFO)
-    local cmake_result = vim.fn.system(cmake_cmd)
-    if vim.v.shell_error ~= 0 then
-        vim.notify(cmake_result, vim.log.levels.ERROR)
-        return
+    -- Get first .exe path if it exists
+    local files = vim.fn.glob(vim.fs.joinpath(bin_dir, "*.exe"), false, true)
+    local exe = (#files > 0) and files[1] or nil
+    if exe then
+        exe = exe:gsub("\\", "\\\\") -- Escape backslashes
     end
 
-    -- Run Ninja to build the project
-    local ninja_cmd = string.format('ninja -C "%s"', build_dir)
-    vim.notify(ninja_cmd, vim.log.levels.INFO)
-    local ninja_result = vim.fn.system(ninja_cmd)
-    if vim.v.shell_error ~= 0 then
-        vim.notify(ninja_result, vim.log.levels.ERROR)
-        return
-    end
+    -- Construct terminal shell command
+    local cmd = table.concat({
+        string.format('cmake -G Ninja -B "%s" -DCMAKE_BUILD_TYPE=Release "%s"', build_dir, root_dir),
+        string.format('ninja -C "%s"', build_dir),
+        exe and exe or "echo No executable found"
+    }, " && ")
 
-    Run("Release");
+    -- Open vertical split terminal
+    vim.cmd("vsplit")
+    vim.cmd("terminal " .. cmd)
+
 end
 
 
@@ -173,7 +151,6 @@ function Run(build_type)
 
     -- Pick the first executable
     local executable = files[1]
-    vim.notify("Found executable: " .. executable, vim.log.levels.INFO)
 
     -- Escape backslashes (Lua-style)
     executable = executable:gsub("\\", "\\\\")
@@ -197,29 +174,9 @@ vim.api.nvim_set_keymap('n', '<leader>rb', ':ReleaseBuildAndRun<CR>', { noremap 
 
 
 
+
 -- Define the custom command for Run with build type argument
 vim.cmd([[ command! -nargs=1 Run lua Run(<f-args>) ]])
 -- Keybinding for Run with the specified build type (using leader key '\r')
-vim.api.nvim_set_keymap('n', '<leader>r', ':Run Debug<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>R', ':Run Release<CR>', { noremap = true, silent = true })
-
-vim.wo.relativenumber = true
-vim.wo.number = true
-vim.wo.signcolumn = "number"
-vim.opt.shiftwidth = 4
--- Enable folding based on syntax (works well for most languages)
-vim.opt.foldmethod = 'syntax'
-vim.opt.foldlevelstart = 99  -- Start with all folds open
-
-
--- Keybindings for folding
-vim.api.nvim_set_keymap('n', '<leader>zR', ':normal! zR<CR>', { noremap = true, silent = true })  -- Open all folds
-vim.api.nvim_set_keymap('n', '<leader>zM', ':normal! zM<CR>', { noremap = true, silent = true })  -- Close all folds
-vim.api.nvim_set_keymap('n', '<leader>zo', ':normal! zo<CR>', { noremap = true, silent = true })  -- Open fold under cursor
-vim.api.nvim_set_keymap('n', '<leader>zc', ':normal! zc<CR>', { noremap = true, silent = true })  -- Close fold under cursor
-
--- Disable arrow keys
-vim.keymap.set('', '<Up>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
-vim.keymap.set('', '<Down>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
-vim.keymap.set('', '<Left>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
-vim.keymap.set('', '<Right>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
+vim.api.nvim_set_keymap('n', '<leader>r', ':Run Debug <CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>R', ':Run Release  <CR>', { noremap = true, silent = true })
