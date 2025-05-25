@@ -8,6 +8,14 @@ vim.opt.writebackup = true       -- safe write to temp file first, then replace
 vim.opt.updatetime = 200
 
 
+-- Treat rml files as html so that treesitter's syntax highlightning works ;)
+vim.filetype.add({
+  extension = {
+    rml = "html",
+  }
+})
+
+
 -- Disable arrow keys
 vim.keymap.set('', '<Up>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
 vim.keymap.set('', '<Down>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
