@@ -41,26 +41,28 @@ if not vim.loop.fs_stat(lazypath) then
     lazypath,
   })
 end
-local disabled_built_ins = {
-    "gzip",
-    "matchit",
-    "matchparen",
-    "tarPlugin",
-    "tohtml",
-    "tutor",
-    "zipPlugin",
-}
 
-for _, plugin in pairs(disabled_built_ins) do
-    vim.g["loaded_" .. plugin] = 1
-end
 vim.opt.rtp:prepend(lazypath)
 
 -- Keymaps (important to call before lazy's plugins' setup cuz sets [vim.g.mapleader= " "] the leader key!!! WHICH HAS TO BE SET BEFORE LAZY PLUGINS!!!)
 require("remap")  -- Now it works because remap.lua is inside lua/
 
 -- Point to your plugin spec module
-require("lazy").setup("plugins")  -- Requires all the files in the plugins/ directory
+require("lazy").setup("plugins", {
+    performance = {
+        rtp = {
+            disabled_plugins = {
+                "gzip",
+                "matchit",
+                "matchparen",
+                "tarPlugin",
+                "tohtml",
+                "tutor",
+                "zipPlugin",
+            },
+        },
+    },
+})
 
 function DebugBuildAndRun()
     -- Save the current file

@@ -1,15 +1,16 @@
 return {
   "hrsh7th/nvim-cmp",
-  event = "InsertEnter", -- 👈 KEY OPTIMIZATION
+  event = "InsertEnter", -- Already good for lazy-loading
   dependencies = {
-    { "hrsh7th/cmp-nvim-lsp" },
-    { "hrsh7th/cmp-buffer" },
-    { "hrsh7th/cmp-path" },
-    { "hrsh7th/cmp-cmdline" },
+    { "hrsh7th/cmp-nvim-lsp", event = "InsertEnter" },
+    { "hrsh7th/cmp-buffer", event = "InsertEnter" },
+    { "hrsh7th/cmp-path", event = "InsertEnter" },
+    { "hrsh7th/cmp-cmdline", event = "CmdlineEnter" }, -- Load cmdline only when needed
     {
       "L3MON4D3/LuaSnip",
-      build = "make install_jsregexp", -- optional: LuaSnip dep
-      event = "InsertEnter", -- lazy-load this too
+      build = "make install_jsregexp",
+      event = "InsertEnter",
+      dependencies = { "saadparwaiz1/cmp_luasnip" }, -- Explicitly add LuaSnip integration
     },
   },
   config = function()
@@ -30,9 +31,23 @@ return {
       }),
       sources = cmp.config.sources({
         { name = "nvim_lsp" },
-        { name = "buffer" },
+        { name = "luasnip" }, -- Add LuaSnip as a source
+        { name = "buffer", max_item_count = 5, keyword_length = 3 }, -- Optimize buffer source
+        { name = "path" },
       }),
+      performance = {
+        debounce = 60, -- Reduce debounce time for faster response
+        throttle = 30, -- Reduce throttle for smoother updates
+        fetching_timeout = 200, -- Lower timeout for faster source fetching
+      },
+    })
+
+    -- Set up cmdline completion separately to avoid loading it in insert mode
+    cmp.setup.cmdline(":", {
+      mapping = cmp.mapping.preset.cmdline(),
+      sources = {
+        { name = "cmdline" },
+      },
     })
   end,
 }
-

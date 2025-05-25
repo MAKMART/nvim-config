@@ -8,15 +8,11 @@ return {
   -- Colorschemes
   require("plugins.colors"),
 
-  { "ellisonleao/gruvbox.nvim" },
-
   -- Telescope and dependencies
   require("plugins.telescope"),
 
   -- Treesitter
   require("plugins.treesitter"),
-
-  { "nvim-treesitter/playground" },
 
   -- Harpoon
   require("plugins.harpoon"),

@@ -1,52 +1,40 @@
 return {
-  "nvim-lualine/lualine.nvim",
-  event = "VeryLazy", -- 👈 UI is ready; now we draw the statusline
-  dependencies = { "nvim-tree/nvim-web-devicons" },
-  config = function()
-    local lualine_status, lualine = pcall(require, "lualine")
-    if not lualine_status then
-      return
-    end
+    "nvim-lualine/lualine.nvim",
+    event = "VimEnter", -- Load after UI is fully ready
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+        -- Simplify the pcall check
+        if not pcall(require, "lualine") then
+            return
+        end
 
-    local lualine_nightfly = require("lualine.themes.nightfly")
-    local new_colors = {
-      blue = "#65d1ff",
-      green = "#3effdc",
-      violet = "#ff61ef",
-      yellow = "#ffda7b",
-      black = "#000000",
-    }
+        -- Load the theme
+        local lualine_nightfly = require("lualine.themes.nightfly")
 
-    lualine_nightfly.normal.a.bg = new_colors.blue
-    lualine_nightfly.insert.a.bg = new_colors.green
-    lualine_nightfly.visual.a.bg = new_colors.violet
-    lualine_nightfly.command = {
-      a = {
-        gui = "bold",
-        bg = new_colors.yellow,
-        fg = new_colors.black,
-      },
-    }
+        -- Define even darker programmer-friendly colors for better text contrast
+        lualine_nightfly.normal = { a = { bg = "#50665f" } } -- Even darker muted blue-green for normal mode
+        lualine_nightfly.insert = { a = { bg = "#405e41" } } -- Even darker forest green for insert mode
+        lualine_nightfly.visual = { a = { bg = "#9b5b6d" } } -- Even darker subtle magenta for visual mode
+        lualine_nightfly.command = { a = { gui = "bold", bg = "#b38220", fg = "#3c3836" } } -- Even darker warm yellow with dark gray foreground
 
-    lualine.setup({
-      options = {
-        theme = lualine_nightfly,
-        section_separators = "",
-        component_separators = "",
-      },
-      sections = {
-        lualine_c = {
-          {
-            "filename",
-            path = 3,
-          },
-        },
-        lualine_z = {
-          function()
-            return os.date("%H:%M:%S") .. " - " .. os.date("%A")
-          end,
-        },
-      },
-    })
-  end,
+        -- Setup lualine
+        require("lualine").setup({
+            options = {
+                theme = lualine_nightfly,
+                section_separators = "",
+                component_separators = "",
+                globalstatus = true, -- Use global statusline for better performance
+            },
+            sections = {
+                lualine_c = {
+                    { "filename", path = 3 },
+                },
+                lualine_z = {
+                    function()
+                        return vim.fn.strftime("%H:%M:%S - %A")
+                    end,
+                },
+            },
+        })
+    end,
 }
