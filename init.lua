@@ -8,10 +8,11 @@ vim.opt.writebackup = true       -- safe write to temp file first, then replace
 vim.opt.updatetime = 200
 
 
--- Treat rml files as html so that treesitter's syntax highlightning works ;)
+-- Treat rml && rcss files as html && css so that treesitter's syntax highlightning works ;)
 vim.filetype.add({
   extension = {
     rml = "html",
+    rcss = "css",
   }
 })
 
