@@ -55,7 +55,7 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Keymaps (important to call before lazy's plugins' setup cuz sets [vim.g.mapleader= " "] the leader key!!! WHICH HAS TO BE SET BEFORE LAZY PLUGINS!!!)
 require("remap")  -- Now it works because remap.lua is inside lua/
-
+local bit = require("bit")
 -- Point to your plugin spec module
 require("lazy").setup("plugins", {
     performance = {
@@ -72,105 +72,109 @@ require("lazy").setup("plugins", {
         },
     },
 })
+-- Utility function: Get the first executable file in a directory
 
-function DebugBuildAndRun()
-    -- Save the current file
-    vim.cmd("w")
-    -- Get the directory of the currently open file
+function get_executable(bin_dir)
+    local is_windows = vim.loop.os_uname().sysname:find("Windows") ~= nil
+    local files = {}
+
+    if is_windows then
+        -- Search for .exe files
+        files = vim.fn.glob(vim.fs.joinpath(bin_dir, "*.exe"), false, true)
+    else
+        -- Search for any file with executable permission
+        local scan = vim.loop.fs_scandir(bin_dir)
+        if scan then
+            while true do
+
+                local name, type = vim.loop.fs_scandir_next(scan)
+                if not name then break end
+                local full_path = vim.fs.joinpath(bin_dir, name)
+                local stat = vim.loop.fs_stat(full_path)
+                -- Check execute permission bits: owner/group/other
+
+                if stat and stat.type == "file" and bit.band(stat.mode, 0x49) ~= 0 then
+                    table.insert(files, full_path)
+                end
+            end
+        end
+    end
+
+    local exe = (#files > 0) and files[1] or nil
+    if exe and is_windows then
+        exe = exe:gsub("\\", "\\\\") -- Escape backslashes for Windows terminal
+    end
+    return exe
+end
+
+
+-- Function to build and run (Debug/Release)
+
+function BuildAndRun(build_type)
+    -- Validate build type
+    if build_type ~= "Debug" and build_type ~= "Release" then
+        build_type = "Debug"
+    end
+
+
+    vim.cmd("w") -- Save file
     local root_dir = vim.fn.expand("%:p:h")
     local build_dir = vim.fs.joinpath(root_dir, "build")
-    local bin_dir = vim.fs.joinpath(build_dir, "bin", "Debug")
+    local bin_dir = vim.fs.joinpath(build_dir, "bin", string.lower(build_type))
     local cmake_file = vim.fs.joinpath(root_dir, "CMakeLists.txt")
 
-    -- Check if CMakeLists.txt exists
     if vim.fn.filereadable(cmake_file) == 0 then
         vim.notify("Error: CMakeLists.txt not found in " .. root_dir, vim.log.levels.ERROR)
         return
     end
 
-    -- Get first .exe path if it exists
-    local files = vim.fn.glob(vim.fs.joinpath(bin_dir, "*.exe"), false, true)
-    local exe = (#files > 0) and files[1] or nil
-    if exe then
-        exe = exe:gsub("\\", "\\\\") -- Escape backslashes
+    local exe = get_executable(bin_dir)
+    if not exe then
+        vim.notify("Error: No executable found in " .. bin_dir, vim.log.levels.ERROR)
+        return
     end
 
-    -- Construct terminal shell command
     local cmd = table.concat({
-        string.format('cmake -G Ninja -B "%s" -DCMAKE_BUILD_TYPE=Debug "%s"', build_dir, root_dir),
+        string.format('cmake -G Ninja -B "%s" -DCMAKE_BUILD_TYPE=%s "%s"', build_dir, build_type, root_dir),
         string.format('ninja -C "%s"', build_dir),
-        exe and exe or "echo No executable found"
+        exe
     }, " && ")
 
-    -- Open vertical split terminal
     vim.cmd("vsplit")
     vim.cmd("terminal " .. cmd)
 end
 
+-- Specific wrappers for Debug and Release
+function DebugBuildAndRun()
+    BuildAndRun("debug")
+end
 
 function ReleaseBuildAndRun()
-    -- Save the current file
-    vim.cmd("w")
-    -- Get the directory of the currently open file
-    local root_dir = vim.fn.expand("%:p:h")
-    local build_dir = vim.fs.joinpath(root_dir, "build")
-    local bin_dir = vim.fs.joinpath(build_dir, "bin", "Release")
-    local cmake_file = vim.fs.joinpath(root_dir, "CMakeLists.txt")
 
-    -- Check if CMakeLists.txt exists
-    if vim.fn.filereadable(cmake_file) == 0 then
-        vim.notify("Error: CMakeLists.txt not found in " .. root_dir, vim.log.levels.ERROR)
+    BuildAndRun("release")
+end
+
+-- Run an existing build without rebuilding
+function Run(build_type)
+    if build_type ~= "Debug" and build_type ~= "Release" then
+        build_type = "Debug"
+    end
+
+    local root_dir = vim.fn.expand("%:p:h")
+    local bin_dir = vim.fs.joinpath(root_dir, "build", "bin", string.lower(build_type))
+
+    local executable = get_executable(bin_dir)
+    if not executable then
+
+        vim.notify("Error: No executable found in " .. bin_dir, vim.log.levels.ERROR)
         return
     end
-    -- Get first .exe path if it exists
-    local files = vim.fn.glob(vim.fs.joinpath(bin_dir, "*.exe"), false, true)
-    local exe = (#files > 0) and files[1] or nil
-    if exe then
-        exe = exe:gsub("\\", "\\\\") -- Escape backslashes
-    end
 
-    -- Construct terminal shell command
-    local cmd = table.concat({
-        string.format('cmake -G Ninja -B "%s" -DCMAKE_BUILD_TYPE=Release "%s"', build_dir, root_dir),
-        string.format('ninja -C "%s"', build_dir),
-        exe and exe or "echo No executable found"
-    }, " && ")
 
-    -- Open vertical split terminal
     vim.cmd("vsplit")
-    vim.cmd("terminal " .. cmd)
-
-end
-
-
-function Run(build_type)
-    -- Validate the build type, default to 'Debug' if invalid
-    if build_type ~= "Debug" and build_type ~= "Release" then
-	build_type = "Debug"  -- Default to Debug if invalid argument
-    end
-
-    -- Get the directory of the currently open file
-    local root_dir = vim.fn.expand('%:p:h')
-    local build_dir = root_dir .. "\\build\\bin\\" .. build_type:lower()  -- Use lowercase for consistency (e.g., 'debug' or 'release')
-
-    -- Search for the executable in the bin_dir
-    local files = vim.fn.glob(vim.fs.joinpath(build_dir, "*.exe"), false, true)
-    if #files == 0 then
-	vim.notify("No executables found in " .. build_dir, vim.log.levels.ERROR)
-	return
-    end
-
-    -- Pick the first executable
-    local executable = files[1]
-
-    -- Escape backslashes (Lua-style)
-    executable = executable:gsub("\\", "\\\\")
-
-    -- Open a terminal directly running the .exe
-    vim.cmd("vsplit")
-    -- Terminal directly runs the .exe
     vim.cmd("terminal " .. executable)
 end
+
 
 
 -- Define the custom command DebugBuildAndRun 

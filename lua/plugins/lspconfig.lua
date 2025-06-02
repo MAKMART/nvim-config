@@ -45,11 +45,6 @@ return {
 		},
 	    },
 	})
-
-	lspconfig.cmake.setup({
-	    cmd = { "C:\\Users\\Marco Martin\\AppData\\Local\\Programs\\Python\\Python313\\python.exe", "-m", "cmake-language-server" },
-	})
-
 	-- C/C++ LSP (Clangd)
 	lspconfig.clangd.setup({
 	    on_attach = on_attach,
