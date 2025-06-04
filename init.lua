@@ -1,12 +1,10 @@
 vim.opt.termguicolors = false
 vim.loader.enable()
 
-
 vim.opt.swapfile = false         -- no .swp files
 vim.opt.backup = false           -- no extra file copy
 vim.opt.writebackup = true       -- safe write to temp file first, then replace
 vim.opt.updatetime = 200
-
 
 -- Treat rml && rcss files as html && css so that treesitter's syntax highlightning works ;)
 vim.filetype.add({
@@ -15,7 +13,6 @@ vim.filetype.add({
     rcss = "css",
   }
 })
-
 
 -- Disable arrow keys
 vim.keymap.set('', '<Up>', '<Cmd>echo "Use hjkl!"<CR>', { noremap = true, silent = false })
@@ -72,86 +69,110 @@ require("lazy").setup("plugins", {
         },
     },
 })
--- Utility function: Get the first executable file in a directory
+local uv = vim.loop
+-- Helper: search upward for CMakeLists.txt starting from cwd
+function find_cmake_root()
+    local cwd = uv.cwd()
+    local path = cwd
+    while path do
+        local candidate = path .. "/CMakeLists.txt"
+        local stat = uv.fs_stat(candidate)
+        if stat and stat.type == "file" then
+            return path
+        end
+        -- Move one directory up
+        local parent = path:match("(.+)/[^/]+$")
+        if parent == path then
+            break
+        end
+        path = parent
+    end
+    return nil
 
-function get_executable(bin_dir)
-    local is_windows = vim.loop.os_uname().sysname:find("Windows") ~= nil
-    local files = {}
+end
 
-    if is_windows then
-        -- Search for .exe files
-        files = vim.fn.glob(vim.fs.joinpath(bin_dir, "*.exe"), false, true)
-    else
-        -- Search for any file with executable permission
-        local scan = vim.loop.fs_scandir(bin_dir)
-        if scan then
-            while true do
+-- Reuse executable finder (same as before)
+function find_executable_in_dir(dir)
+    local handle = uv.fs_scandir(dir)
 
-                local name, type = vim.loop.fs_scandir_next(scan)
-                if not name then break end
-                local full_path = vim.fs.joinpath(bin_dir, name)
-                local stat = vim.loop.fs_stat(full_path)
-                -- Check execute permission bits: owner/group/other
+    if not handle then return nil end
 
-                if stat and stat.type == "file" and bit.band(stat.mode, 0x49) ~= 0 then
-                    table.insert(files, full_path)
+
+    while true do
+        local name, type = uv.fs_scandir_next(handle)
+        if not name then break end
+        local path = dir .. "/" .. name
+        if type == "file" then
+            local stat = uv.fs_stat(path)
+            if stat then
+                local is_windows = vim.loop.os_uname().sysname == "Windows_NT"
+                if is_windows then
+                    if name:match("%.exe$") or name:match("%.bat$") or name:match("%.cmd$") then
+                        return path
+                    end
+                else
+                    if bit.band(stat.mode, 0x49) ~= 0 then
+                        return path
+                    end
                 end
             end
         end
     end
-
-    local exe = (#files > 0) and files[1] or nil
-    if exe and is_windows then
-        exe = exe:gsub("\\", "\\\\") -- Escape backslashes for Windows terminal
-    end
-    return exe
+    return nil
 end
 
+-- Main function: auto detects root, sets build/bin dirs, runs build and exec
 
--- Function to build and run (Debug/Release)
+function run_build_and_exec(build_type)
+    build_type = build_type or "Release"
+    local root_dir = find_cmake_root()
 
-function BuildAndRun(build_type)
-    -- Validate build type
-    if build_type ~= "Debug" and build_type ~= "Release" then
+    if not root_dir then
+
+        vim.notify("CMakeLists.txt not found in any parent directory.", vim.log.levels.ERROR)
+        return
+    end
+
+    local build_dir = root_dir .. "/build"
+    local bin_dir
+    local build_type_lower = build_type:lower()
+    if build_type_lower == "debug" then
+        bin_dir = build_dir .. "/bin/debug"
+
         build_type = "Debug"
+    else
+        bin_dir = build_dir .. "/bin/release"
+        build_type = "Release"
     end
 
+    local exe = find_executable_in_dir(bin_dir)
 
-    vim.cmd("w") -- Save file
-    local root_dir = vim.fn.expand("%:p:h")
-    local build_dir = vim.fs.joinpath(root_dir, "build")
-    local bin_dir = vim.fs.joinpath(build_dir, "bin", string.lower(build_type))
-    local cmake_file = vim.fs.joinpath(root_dir, "CMakeLists.txt")
+    -- Compose a shell command that:
+    -- 1. Runs cmake
+    -- 2. Runs ninja
+    -- 3. If build succeeds, runs the executable
+    -- 4. Stops if any step fails (due to && chaining)
 
-    if vim.fn.filereadable(cmake_file) == 0 then
-        vim.notify("Error: CMakeLists.txt not found in " .. root_dir, vim.log.levels.ERROR)
-        return
-    end
+    local cmd = string.format(
+        'cmake -G Ninja -B "%s" -DCMAKE_BUILD_TYPE=%s "%s" && ' ..
+        'ninja -C "%s" && ' ..
+        '"%s"',
+        build_dir, build_type, root_dir, build_dir, exe or ""
 
-    local exe = get_executable(bin_dir)
-    if not exe then
-        vim.notify("Error: No executable found in " .. bin_dir, vim.log.levels.ERROR)
-        return
-    end
-
-    local cmd = table.concat({
-        string.format('cmake -G Ninja -B "%s" -DCMAKE_BUILD_TYPE=%s "%s"', build_dir, build_type, root_dir),
-        string.format('ninja -C "%s"', build_dir),
-        exe
-    }, " && ")
+    )
 
     vim.cmd("vsplit")
+
     vim.cmd("terminal " .. cmd)
 end
 
 -- Specific wrappers for Debug and Release
 function DebugBuildAndRun()
-    BuildAndRun("debug")
+    run_build_and_exec("Debug")
 end
 
 function ReleaseBuildAndRun()
-
-    BuildAndRun("release")
+    run_build_and_exec("Release")
 end
 
 -- Run an existing build without rebuilding
@@ -163,7 +184,7 @@ function Run(build_type)
     local root_dir = vim.fn.expand("%:p:h")
     local bin_dir = vim.fs.joinpath(root_dir, "build", "bin", string.lower(build_type))
 
-    local executable = get_executable(bin_dir)
+    local executable = find_executable_in_dir(bin_dir)
     if not executable then
 
         vim.notify("Error: No executable found in " .. bin_dir, vim.log.levels.ERROR)
