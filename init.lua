@@ -181,7 +181,7 @@ function Run(build_type)
         build_type = "Debug"
     end
 
-    local root_dir = vim.fn.expand("%:p:h")
+    local root_dir = find_cmake_root()
     local bin_dir = vim.fs.joinpath(root_dir, "build", "bin", string.lower(build_type))
 
     local executable = find_executable_in_dir(bin_dir)
