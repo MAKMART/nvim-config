@@ -1,10 +1,28 @@
-vim.opt.termguicolors = false
+vim.opt.termguicolors = true
 vim.loader.enable()
 
+-- Options
 vim.opt.swapfile = false         -- no .swp files
 vim.opt.backup = false           -- no extra file copy
 vim.opt.writebackup = true       -- safe write to temp file first, then replace
 vim.opt.updatetime = 200
+vim.wo.relativenumber = true
+vim.wo.number = true
+vim.wo.signcolumn = "number"
+vim.opt.shiftwidth = 4	-- 4 space indenting (goated)
+-- Enable folding based on syntax (works well for most languages)
+vim.opt.foldmethod = 'syntax'
+vim.opt.foldlevelstart = 99  -- Start with all folds open
+
+
+vim.diagnostic.config({
+  virtual_text = false,
+  virtual_lines = {
+    only_current_line = true, -- Show only for the line you're on
+  },
+  signs = true,
+  underline = true,
+})
 
 -- Treat rml && rcss files as html && css so that treesitter's syntax highlightning works ;)
 vim.filetype.add({
@@ -26,15 +44,6 @@ vim.api.nvim_set_keymap('n', '<leader>zM', ':normal! zM<CR>', { noremap = true, 
 vim.api.nvim_set_keymap('n', '<leader>zo', ':normal! zo<CR>', { noremap = true, silent = true })  -- Open fold under cursor
 vim.api.nvim_set_keymap('n', '<leader>zc', ':normal! zc<CR>', { noremap = true, silent = true })  -- Close fold under cursor
 
--- Options
-vim.wo.relativenumber = true
-vim.wo.number = true
-vim.wo.signcolumn = "number"
-vim.opt.shiftwidth = 4
--- Enable folding based on syntax (works well for most languages)
-vim.opt.foldmethod = 'syntax'
-vim.opt.foldlevelstart = 99  -- Start with all folds open
-
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -54,7 +63,7 @@ vim.opt.rtp:prepend(lazypath)
 require("remap")  -- Now it works because remap.lua is inside lua/
 local bit = require("bit")
 -- Point to your plugin spec module
-require("lazy").setup("plugins", {
+require("lazy").setup("plugins", { --Setup plugins using lua/plugins/init.lua
     performance = {
         rtp = {
             disabled_plugins = {

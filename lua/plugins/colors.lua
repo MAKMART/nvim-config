@@ -1,6 +1,6 @@
 return {
     "sainnhe/sonokai",
-    priority = 1000, -- load early to avoid flash
+    priority = 100, -- load early to avoid flash
     init = function()
 	-- Set Sonokai style (optional, you can choose one)
 	vim.g.sonokai_style = "default"
@@ -14,8 +14,8 @@ return {
 	end
 
 	-- Transparent background
-	--vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-	--vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+	vim.api.nvim_set_hl(0, "Normal", { bg = "#181818" })
+	vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#181818" })
     end,
     --[[function set_bk()
 	-- Get a list of all available color schemes

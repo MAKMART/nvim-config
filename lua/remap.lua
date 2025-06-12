@@ -13,6 +13,21 @@ vim.api.nvim_set_keymap('n', '<S-Tab>', ':tabprev<CR>', { noremap = true, silent
 -- Open a new tab with Ctrl+t
 vim.api.nvim_set_keymap('n', '<C-t>', ':tabnew<CR>', { noremap = true, silent = true })
 
+
+-- Scroll view down while cursor stays visually fixed
+vim.keymap.set("n", "<C-j>", function()
+  vim.cmd("normal! j")  -- move cursor down
+  vim.cmd("normal! zz") -- center cursor again
+end, { desc = "Scroll down, keep cursor fixed" })
+
+-- Scroll view up while cursor stays visually fixed
+vim.keymap.set("n", "<C-k>", function()
+  vim.cmd("normal! k")
+  vim.cmd("normal! zz")
+end, { desc = "Scroll up, keep cursor fixed" })
+
+
+
 -- Check if the keymap exists before removing it
 local function remove_keymap(mode, key)
   local current_map = vim.api.nvim_get_keymap(mode)
