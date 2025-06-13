@@ -72,7 +72,6 @@ require("lazy").setup("plugins", { --Setup plugins using lua/plugins/init.lua
                 "matchparen",
                 "tarPlugin",
                 "tohtml",
-                "tutor",
                 "zipPlugin",
             },
         },
