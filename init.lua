@@ -9,7 +9,10 @@ vim.opt.updatetime = 200
 vim.wo.relativenumber = true
 vim.wo.number = true
 vim.wo.signcolumn = "number"
-vim.opt.shiftwidth = 4	-- 4 space indenting (goated)
+vim.opt.expandtab = true     -- Use spaces instead of tabs
+vim.opt.shiftwidth = 4       -- Number of spaces per indent
+vim.opt.tabstop = 4          -- Number of spaces a tab counts for
+vim.opt.softtabstop = 4      -- Makes backspace delete 4 spaces
 -- Enable folding based on syntax (works well for most languages)
 vim.opt.foldmethod = 'syntax'
 vim.opt.foldlevelstart = 99  -- Start with all folds open
