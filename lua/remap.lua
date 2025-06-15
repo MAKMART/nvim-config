@@ -13,6 +13,8 @@ vim.api.nvim_set_keymap('n', '<S-Tab>', ':tabprev<CR>', { noremap = true, silent
 -- Open a new tab with Ctrl+t
 vim.api.nvim_set_keymap('n', '<C-t>', ':tabnew<CR>', { noremap = true, silent = true })
 
+-- Rename symbol under cursor
+vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, { desc = 'LSP: Rename Symbol' })
 
 -- Scroll view down while cursor stays visually fixed
 vim.keymap.set("n", "<C-j>", function()
@@ -25,6 +27,31 @@ vim.keymap.set("n", "<C-k>", function()
   vim.cmd("normal! k")
   vim.cmd("normal! zz")
 end, { desc = "Scroll up, keep cursor fixed" })
+
+
+-- This will check for overall code correctness
+vim.keymap.set("n", "<leader>ct", function()
+  vim.lsp.buf.code_action({
+    context = {
+      diagnostics = {}, -- trigger all
+    },
+  })
+end, { desc = "Run clang-tidy via LSP" })
+
+-- This will style and order the code
+vim.keymap.set('n', '<leader>cf', function()
+  vim.lsp.buf.format({ async = true })
+end, { desc = "Format buffer with clang-format" })
+
+
+-- Remap split navigation
+vim.keymap.set('n', '<Leader>h', '<C-w>h', { desc = 'Move to left split' })
+vim.keymap.set('n', '<Leader>j', '<C-w>j', { desc = 'Move to down split' })
+vim.keymap.set('n', '<Leader>k', '<C-w>k', { desc = 'Move to up split' })
+vim.keymap.set('n', '<Leader>l', '<C-w>l', { desc = 'Move to right split' })
+
+-- Optional: If you also want to cycle through splits with <Leader>w
+vim.keymap.set('n', '<Leader>w', '<C-w>w', { desc = 'Cycle through splits' })
 
 
 

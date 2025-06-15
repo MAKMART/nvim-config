@@ -26,21 +26,19 @@ return {
 	    local lspconfig    = require("lspconfig")
 	    local cmp_cap      = require("cmp_nvim_lsp").default_capabilities()
 	    local servers      = require("plugins.lsp.servers")
-	    local stddata      = vim.fn.stdpath("data")
-
-
+	    local stddata = vim.fn.stdpath("data")
 
 	    local on_attach = function(client, bufnr)
 		vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to Definition" })
 		vim.keymap.set("n", "K",  vim.lsp.buf.hover,      { buffer = bufnr, desc = "Hover Documentation" })
+		vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, { desc = 'LSP: Rename' })	-- To rename the variable currently under the cursor
 	    end
 
 	    -- Returns the absolute path to a Mason-installed binary, or nil.
 	    local function mason_bin(name)
-		local path = stddata .. "/mason/bin/" .. name
+		local path = vim.fs.joinpath(stddata, "mason", "bin", name)
 		return vim.fn.executable(path) == 1 and path or nil
 	    end
-
 	    local is_windows = vim.loop.os_uname().sysname == "Windows_NT"
 	    local msys2_driver = "C:/msys64/mingw64/bin/c++.exe"
 	    local has_msys2 = vim.fn.executable(msys2_driver) == 1
@@ -53,7 +51,8 @@ return {
 	    -- always include compile-commands-dir
 	    local root_dir = lspconfig.util.root_pattern("compile_commands.json", "compile_flags.txt", ".git")(vim.fn.getcwd())
 	    if root_dir then
-		table.insert(cmd, "--compile-commands-dir=" .. root_dir .. "/build")
+		local compile_commands_dir = vim.fs.joinpath(root_dir, "build")
+		table.insert(cmd, "--compile-commands-dir=" .. compile_commands_dir)
 	    end
 
 	    -- only on Windows + MSYS2, add query-driver
@@ -61,6 +60,8 @@ return {
 		table.insert(cmd, "--query-driver=" .. msys2_driver)
 	    end
 
+	    -- Make sure to have clang-tidy (part of the clang package) installed in your system i.e. available via: clang-tidy
+	    table.insert(cmd, "--clang-tidy")
 
 	    for _, name in ipairs(servers) do
 		-----------------------------------

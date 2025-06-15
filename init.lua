@@ -16,12 +16,8 @@ vim.opt.foldlevelstart = 99  -- Start with all folds open
 
 
 vim.diagnostic.config({
-  virtual_text = false,
-  virtual_lines = {
-    only_current_line = true, -- Show only for the line you're on
-  },
-  signs = true,
-  underline = true,
+  virtual_text = true,
+  virtual_lines = false,
 })
 
 -- Treat rml && rcss files as html && css so that treesitter's syntax highlightning works ;)
