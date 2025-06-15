@@ -62,7 +62,7 @@ return {
 
 	    -- Make sure to have clang-tidy (part of the clang package) installed in your system i.e. available via: clang-tidy
 	    table.insert(cmd, "--clang-tidy")
-
+        table.insert(cmd, "--enable-config")
 	    for _, name in ipairs(servers) do
 		-----------------------------------
 		-- clangd: use Mason's binary if present
