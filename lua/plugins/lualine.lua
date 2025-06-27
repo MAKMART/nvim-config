@@ -3,38 +3,69 @@ return {
     event = "VimEnter", -- Load after UI is fully ready
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-        -- Simplify the pcall check
-        if not pcall(require, "lualine") then
-            return
-        end
+        local ok, lualine = pcall(require, "lualine")
+        if not ok then return end
 
-        -- Load the theme
-        local lualine_nightfly = require("lualine.themes.nightfly")
+        -- Try to load the theme with fallback
+        local theme = require("lualine.themes.nightfly")
 
-        -- Define even darker programmer-friendly colors for better text contrast
-        lualine_nightfly.normal = { a = { bg = "#50665f" } } -- Even darker muted blue-green for normal mode
-        lualine_nightfly.insert = { a = { bg = "#405e41" } } -- Even darker forest green for insert mode
-        lualine_nightfly.visual = { a = { bg = "#9b5b6d" } } -- Even darker subtle magenta for visual mode
-        lualine_nightfly.command = { a = { gui = "bold", bg = "#b38220", fg = "#3c3836" } } -- Even darker warm yellow with dark gray foreground
+        -- Patch theme with darker, programmer-friendly custom mode colors
+        local mode_colors = {
+            normal  = "#50665f", -- Muted blue-green
+            insert  = "#405e41", -- Forest green
+            visual  = "#9b5b6d", -- Subtle magenta
+            command = "#b38220", -- Warm yellow
+        }
 
-        -- Setup lualine
-        require("lualine").setup({
+        -- Ensure each mode table exists before modifying it
+        theme.normal  = theme.normal  or {}
+        theme.insert  = theme.insert  or {}
+        theme.visual  = theme.visual  or {}
+        theme.command = theme.command or {}
+
+        --[[
+        theme.normal.a  = { fg = "#ffffff", bg = mode_colors.normal, gui = "bold" }
+        theme.insert.a  = { fg = "#ffffff", bg = mode_colors.insert, gui = "bold" }
+        theme.visual.a  = { fg = "#ffffff", bg = mode_colors.visual, gui = "bold" }
+        theme.command.a = { fg = "#3c3836", bg = mode_colors.command, gui = "bold" }
+        ]]
+
+
+        -- Lualine setup
+        lualine.setup({
             options = {
-                theme = lualine_nightfly,
+                theme = "auto",
+                globalstatus = true,
                 section_separators = "",
                 component_separators = "",
-                globalstatus = true, -- Use global statusline for better performance
+                icons_enabled = true,
+                disabled_filetypes = {
+                    statusline = { "alpha", "dashboard", "neo-tree" },
+                    winbar = {},
+                },
             },
             sections = {
+                lualine_a = { "mode" },
+                lualine_b = { "branch", "diff", "diagnostics" },
                 lualine_c = {
-                    { "filename", path = 3 },
+                    { "filename", path = 3, symbols = { modified = "●", readonly = "🔒", unnamed = "[No Name]" } },
                 },
+                lualine_x = { "encoding", "fileformat", "filetype" },
+                lualine_y = { "progress" },
                 lualine_z = {
                     function()
-                        return vim.fn.strftime("%H:%M:%S - %A")
+                        return os.date("%H:%M:%S - %A")
                     end,
                 },
             },
+            inactive_sections = {
+                lualine_c = { { "filename", path = 1 } },
+                lualine_x = { "location" },
+            },
+            tabline = {},
+            winbar = {},
+            inactive_winbar = {},
+            extensions = { "nvim-tree", "quickfix", "toggleterm" },
         })
     end,
 }
