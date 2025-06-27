@@ -112,7 +112,7 @@ function find_executable_in_dir(dir)
         if type == "file" then
             local stat = uv.fs_stat(path)
             if stat then
-                local is_windows = vim.loop.os_uname().sysname == "Windows_NT"
+                local is_windows = uv.os_uname().sysname == "Windows_NT"
                 if is_windows then
                     if name:match("%.exe$") or name:match("%.bat$") or name:match("%.cmd$") then
                         return path
@@ -216,10 +216,9 @@ vim.cmd([[ command! ReleaseBuildAndRun lua ReleaseBuildAndRun() ]])
 vim.api.nvim_set_keymap('n', '<leader>rb', ':ReleaseBuildAndRun<CR>', { noremap = true, silent = true })
 
 
+-- Keybindings
+vim.api.nvim_set_keymap('n', '<leader>r', ':Run Debug<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>R', ':Run Release<CR>', { noremap = true, silent = true })
 
-
--- Define the custom command for Run with build type argument
+-- Custom Run command with build type
 vim.cmd([[ command! -nargs=1 Run lua Run(<f-args>) ]])
--- Keybinding for Run with the specified build type (using leader key '\r')
-vim.api.nvim_set_keymap('n', '<leader>r', ':Run Debug <CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>R', ':Run Release  <CR>', { noremap = true, silent = true })
