@@ -2,6 +2,7 @@ return {
   "iruzo/ripgrep.nvim",
   version = "*",
   cmd = { "Rg", "RgSearch", "RgLiveGrep" }, -- Load only when the user actually searches
+  lazy = true,
   build = function()
     -- Safeguard: Only install if not already available
     local rg = vim.fn.executable("rg") == 1

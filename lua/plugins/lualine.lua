@@ -1,6 +1,7 @@
 return {
     "nvim-lualine/lualine.nvim",
     event = "VimEnter", -- Load after UI is fully ready
+    lazy = true,
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
         local ok, lualine = pcall(require, "lualine")
@@ -48,7 +49,7 @@ return {
                 lualine_a = { "mode" },
                 lualine_b = { "branch", "diff", "diagnostics" },
                 lualine_c = {
-                    { "filename", path = 3, symbols = { modified = "●", readonly = "🔒", unnamed = "[No Name]" } },
+                    { "alpha", "filename", path = 3, symbols = { modified = "●", readonly = "🔒", unnamed = "[No Name]" } },
                 },
                 lualine_x = { "encoding", "fileformat", "filetype" },
                 lualine_y = { "progress" },

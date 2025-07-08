@@ -2,6 +2,7 @@ return {
     -- 1. mason.nvim 🚀
     {
 	"williamboman/mason.nvim",
+    event = { "BufReadPre", "BufNewFile" }, -- lazy load on file open
 	build  = ":MasonUpdate",
 	config = function()
 	    require("mason").setup()
@@ -11,9 +12,10 @@ return {
     -- 2. mason-lspconfig.nvim 🔧 (only ensures installation)
     {
 	"williamboman/mason-lspconfig.nvim",
+    event = { "BufReadPre", "BufNewFile" }, -- lazy load on file open
 	config = function()
 	    require("mason-lspconfig").setup({
-		ensure_installed = require("plugins.lsp.servers"),
+		ensure_installed = require("config.servers"),
 		automatic_installation = true, -- optional, keep if desired
 		-- note: v2 auto-installs missing ones on first startup
 	    })
@@ -22,10 +24,11 @@ return {
    -- 3. nvim-lspconfig 🤖 (manual setup of each server)
     {
 	"neovim/nvim-lspconfig",
+    event = { "BufReadPre", "BufNewFile" }, -- lazy load on file open
 	config = function()
 	    local lspconfig    = require("lspconfig")
 	    local cmp_cap      = require("cmp_nvim_lsp").default_capabilities()
-	    local servers      = require("plugins.lsp.servers")
+	    local servers      = require("config.servers")
 	    local stddata = vim.fn.stdpath("data")
 
 	    local on_attach = function(client, bufnr)
