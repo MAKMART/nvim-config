@@ -48,6 +48,7 @@ return {
         vim.api.nvim_set_hl(0, "lualine_c_replace", { fg = "#ffaa00", bg = "#282828" })
         vim.api.nvim_set_hl(0, "lualine_c_command", { fg = "#aaccff", bg = "#282828" })
         vim.api.nvim_set_hl(0, "lualine_c_inactive",{ fg = "#888888", bg = "#282828" })
+        vim.api.nvim_set_hl(0, "lualine_c_terminal",  { fg = "#ffcc00", bg = "#282828" })
 
     end,
 }
