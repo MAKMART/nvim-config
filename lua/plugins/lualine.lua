@@ -42,13 +42,13 @@ return {
             extensions = { "nvim-tree", "quickfix", "toggleterm" },
         })
 
-        vim.api.nvim_set_hl(0, "lualine_c_normal",  { fg = "#ffcc00", bg = "#282828" })
-        vim.api.nvim_set_hl(0, "lualine_c_insert",  { fg = "#00ffaa", bg = "#282828" })
-        vim.api.nvim_set_hl(0, "lualine_c_visual",  { fg = "#ff88cc", bg = "#282828" })
-        vim.api.nvim_set_hl(0, "lualine_c_replace", { fg = "#ffaa00", bg = "#282828" })
-        vim.api.nvim_set_hl(0, "lualine_c_command", { fg = "#aaccff", bg = "#282828" })
-        vim.api.nvim_set_hl(0, "lualine_c_inactive",{ fg = "#888888", bg = "#282828" })
-        vim.api.nvim_set_hl(0, "lualine_c_terminal",  { fg = "#ffcc00", bg = "#282828" })
+        vim.api.nvim_set_hl(0, "lualine_c_normal",  { fg = "#ffcc00", bg = "none" })
+        vim.api.nvim_set_hl(0, "lualine_c_insert",  { fg = "#00ffaa", bg = "none" })
+        vim.api.nvim_set_hl(0, "lualine_c_visual",  { fg = "#ff88cc", bg = "none" })
+        vim.api.nvim_set_hl(0, "lualine_c_replace", { fg = "#ffaa00", bg = "none" })
+        vim.api.nvim_set_hl(0, "lualine_c_command", { fg = "#aaccff", bg = "none" })
+        vim.api.nvim_set_hl(0, "lualine_c_inactive",{ fg = "#888888", bg = "none" })
+        vim.api.nvim_set_hl(0, "lualine_c_terminal",  { fg = "#ffcc00", bg = "none" })
 
     end,
 }
