@@ -170,7 +170,7 @@ return {
 						TSBoolean = { fg = colors.mauve},
 						TSCharacter = { fg = colors.teal },
 						TSCharacterSpecial = { link = "SpecialChar" },
-						TSComment = { link = "Comment" },
+						TSComment = { --[[link = "Comment"]] fg = colors.overlay0, style = { "italic" } },
 						TSConditional = { fg = colors.red },
 						TSConstBuiltin = { fg = colors.mauve },
 						TSConstMacro = { fg = colors.mauve },
