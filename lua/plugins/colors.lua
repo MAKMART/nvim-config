@@ -355,5 +355,7 @@ return {
 		})
 
         vim.cmd.colorscheme("catppuccin-mocha")
+        vim.cmd('highlight! link NormalFloat Normal')
+        vim.cmd('highlight! link FloatBorder Normal')
 	end,
 }

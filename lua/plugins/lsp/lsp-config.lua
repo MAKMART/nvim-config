@@ -34,7 +34,6 @@ return {
             local on_attach = function(client, bufnr)
                 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to Definition" })
                 vim.keymap.set("n", "K",  vim.lsp.buf.hover,      { buffer = bufnr, desc = "Hover Documentation" })
-                vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, { desc = 'LSP: Rename' })	-- To rename the variable currently under the cursor
             end
 
             -- Returns the absolute path to a Mason-installed binary, or nil.

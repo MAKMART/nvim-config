@@ -57,8 +57,9 @@ function M.run_build_and_exec(build_type)
     'ninja -C "%s" && "%s"',
     build_dir, build_type, root_dir, build_dir, exe or ""
   )
-  vim.cmd("vsplit")
-  vim.cmd("terminal " .. cmd)
+  --vim.cmd("vsplit")
+  --vim.cmd("terminal " .. cmd)
+  require("utils.floaterminal").toggle_terminal(cmd)
 end
 
 function M.run_only(build_type)
@@ -69,8 +70,9 @@ function M.run_only(build_type)
     vim.notify("No executable found in " .. bin_dir, vim.log.levels.ERROR)
     return
   end
-  vim.cmd("vsplit")
-  vim.cmd("terminal " .. exe)
+  --vim.cmd("vsplit")
+  --vim.cmd("terminal " .. exe)
+  require("utils.floaterminal").toggle_terminal(exe)
 end
 
 return M
