@@ -54,8 +54,8 @@ function M.run_build_and_exec(build_type)
   local exe = M.find_executable_in_dir(bin_dir)
   local cmd = string.format(
     'cmake -G Ninja -B "%s" -DCMAKE_BUILD_TYPE=%s "%s" && ' ..
-    'ninja -C "%s" && "%s"',
-    build_dir, build_type, root_dir, build_dir, exe or ""
+    'ninja -j 10 -C "%s" && cd "%s" && "%s"',
+    build_dir, build_type, root_dir, build_dir, bin_dir, exe or ""
   )
   --vim.cmd("vsplit")
   --vim.cmd("terminal " .. cmd)
@@ -70,9 +70,10 @@ function M.run_only(build_type)
     vim.notify("No executable found in " .. bin_dir, vim.log.levels.ERROR)
     return
   end
+  local cmd = string.format('cd "%s" && "%s"', bin_dir, exe)
   --vim.cmd("vsplit")
   --vim.cmd("terminal " .. exe)
-  require("utils.floaterminal").toggle_terminal(exe)
+  require("utils.floaterminal").toggle_terminal(cmd)
 end
 
 return M
