@@ -9,6 +9,7 @@ vim.opt.updatetime = 300
 vim.wo.relativenumber = true
 vim.wo.number = true
 vim.wo.signcolumn = "yes"
+vim.o.ambiwidth = "double"
 
 
 vim.opt.expandtab = false      -- use real tabs

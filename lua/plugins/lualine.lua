@@ -19,105 +19,87 @@ return {
 		end
 	end
 
-	local fg_normal = get_hl_color("Normal", "foreground") or "#ffffff"
-	local fg_insert = get_hl_color("String", "foreground") or "#00ffaa"
-	local fg_visual = get_hl_color("Visual", "background") or "#ff88cc"
-	local fg_replace = get_hl_color("WarningMsg", "foreground") or "#ffaa00"
-	local fg_command = get_hl_color("Statement", "foreground") or "#aaccff"
-	local fg_inactive = get_hl_color("Comment", "foreground") or "#888888"
-	local fg_terminal = get_hl_color("Special", "foreground") or "#ffcc00"
+	local function update_lualine_colors()
+		local fg_normal  = get_hl_color("Normal", "foreground") or "#ffffff"
+		local bg_normal  = get_hl_color("Normal", "background") or "#000000"
+		local fg_insert  = get_hl_color("String", "foreground") or "#00ffaa"
+		local fg_visual  = get_hl_color("Visual", "foreground") or "#ff88cc"
+		local fg_replace = get_hl_color("WarningMsg", "foreground") or "#ffaa00"
+		local fg_command = get_hl_color("Statement", "foreground") or "#aaccff"
+		local fg_inactive= get_hl_color("Comment", "foreground") or "#888888"
 
+		local theme = {
+			normal   = { a = { fg = fg_normal, bg = bg_normal }, b = { fg = fg_normal, bg = bg_normal }, c = { fg = fg_normal, bg = bg_normal } },
+			insert   = { a = { fg = fg_insert, bg = bg_normal }, b = { fg = fg_insert, bg = bg_normal }, c = { fg = fg_insert, bg = bg_normal } },
+			visual   = { a = { fg = fg_visual, bg = bg_normal }, b = { fg = fg_visual, bg = bg_normal }, c = { fg = fg_visual, bg = bg_normal } },
+			replace  = { a = { fg = fg_replace, bg = bg_normal }, b = { fg = fg_replace, bg = bg_normal }, c = { fg = fg_replace, bg = bg_normal } },
+			command  = { a = { fg = fg_command, bg = bg_normal }, b = { fg = fg_command, bg = bg_normal }, c = { fg = fg_command, bg = bg_normal } },
+			inactive = { a = { fg = fg_inactive, bg = bg_normal }, b = { fg = fg_inactive, bg = bg_normal }, c = { fg = fg_inactive, bg = bg_normal } },
+		}
 
-	vim.api.nvim_create_autocmd("ColorScheme", {
-		callback = function()
+		-- Lualine setup
+		lualine.setup({
+			options = {
+				theme = theme,
+				globalstatus = true,
+				section_separators = "",
+				component_separators = "",
+				icons_enabled = true,
+				disabled_filetypes = {
+					statusline = { "alpha", "dashboard", "neo-tree" },
+					winbar = {},
+				},
+			},
+			sections = {
+				lualine_a = { "mode" },
+				lualine_b = { "branch", "diff", "diagnostics" },
+				lualine_c = {{ "filename", path = 3, symbols = { modified = "●", readonly = "🔒", unnamed = "[Unnamed]" } }, },
+				lualine_x = { "encoding", "fileformat", "filetype" },
+				lualine_y = { "progress" },
+				lualine_z = {
+					function()
+						return os.date("%H:%M:%S - %A")
+					end,
+				},
+			},
+			inactive_sections = {
+				lualine_c = { { "filename", path = 1 } },
+				lualine_x = { "location" },
+			},
+			tabline = {
+				lualine_a = {
+					{
+						'buffers',
+						show_filename_only = false,
+						mode = 0,
+						max_length = math.floor(vim.o.columns * 2 / 3),
+						filetype_names = {
+							telescope = "Telescope",
+							dashboard = "Dashboard",
+							packer = "Packer",
+							fzf = "FZF",
+							alpha = "Alpha",
+						},
+						buffers_color = {
+							active = "lualine_c_normal",
+							inactive = "lualine_c_inactive",
+						},
+					}
+				},
+				lualine_b = {},
+				lualine_c = {},
+				lualine_x = {},
+				lualine_y = {},
+				lualine_z = {},
+			},
 
-			local fg_normal = get_hl_color("Normal", "foreground") or "#ffffff"
-			local fg_insert = get_hl_color("String", "foreground") or "#00ffaa"
-			local fg_visual = get_hl_color("Visual", "background") or "#ff88cc"
-			local fg_replace = get_hl_color("WarningMsg", "foreground") or "#ffaa00"
-			local fg_command = get_hl_color("Statement", "foreground") or "#aaccff"
-			local fg_inactive = get_hl_color("Comment", "foreground") or "#888888"
-			local fg_terminal = get_hl_color("Special", "foreground") or "#ffcc00"
-		end,
-	})
+			winbar = {},
+			inactive_winbar = {},
+		})
 
+	end
 
-	local custom_theme = {
-		normal = { c = { fg = fg_normal, bg = "NONE" } },
-		insert = { c = { fg = fg_insert, bg = "NONE" } },
-		visual = { c = { fg = fg_visual, bg = "NONE" } },
-		replace = { c = { fg = fg_replace, bg = "NONE" } },
-		command = { c = { fg = fg_command, bg = "NONE" } },
-		inactive = { c = { fg = fg_inactive, bg = "NONE" } },
-	}
-        -- Lualine setup
-        lualine.setup({
-            options = {
-                theme = custom_theme,
-                globalstatus = true,
-                section_separators = "",
-                component_separators = "",
-                icons_enabled = true,
-                disabled_filetypes = {
-                    statusline = { "alpha", "dashboard", "neo-tree" },
-                    winbar = {},
-                },
-            },
-            sections = {
-                lualine_a = { "mode" },
-                lualine_b = { "branch", "diff", "diagnostics" },
-                lualine_c = {{ "filename", path = 3, symbols = { modified = "●", readonly = "🔒", unnamed = "[Unnamed]" } }, },
-                lualine_x = { "encoding", "fileformat", "filetype" },
-                lualine_y = { "progress" },
-                lualine_z = {
-                    function()
-                        return os.date("%H:%M:%S - %A")
-                    end,
-                },
-            },
-            inactive_sections = {
-                lualine_c = { { "filename", path = 1 } },
-                lualine_x = { "location" },
-            },
-            tabline = {
-                lualine_a = {
-                    {
-                        'buffers',
-                        show_filename_only = false,
-                        mode = 0,
-                        max_length = math.floor(vim.o.columns * 2 / 3),
-                        filetype_names = {
-                            telescope = "Telescope",
-                            dashboard = "Dashboard",
-                            packer = "Packer",
-                            fzf = "FZF",
-                            alpha = "Alpha",
-                        },
-                        buffers_color = {
-                            active = "lualine_c_normal",
-                            inactive = "lualine_c_inactive",
-                        },
-                    }
-                },
-                lualine_b = {},
-                lualine_c = {},
-                lualine_x = {},
-                lualine_y = {},
-                lualine_z = {},
-            },
-
-            winbar = {},
-            inactive_winbar = {},
-            extensions = { "nvim-tree", "quickfix", "toggleterm" },
-        })
-
-        vim.api.nvim_set_hl(0, "lualine_c_normal",  { fg = "#ffcc00", bg = "none" })
-        vim.api.nvim_set_hl(0, "lualine_c_insert",  { fg = "#00ffaa", bg = "none" })
-        vim.api.nvim_set_hl(0, "lualine_c_visual",  { fg = "#ff88cc", bg = "none" })
-        vim.api.nvim_set_hl(0, "lualine_c_replace", { fg = "#ffaa00", bg = "none" })
-        vim.api.nvim_set_hl(0, "lualine_c_command", { fg = "#aaccff", bg = "none" })
-        vim.api.nvim_set_hl(0, "lualine_c_inactive",{ fg = "#888888", bg = "none" })
-        vim.api.nvim_set_hl(0, "lualine_c_terminal",  { fg = "#ffcc00", bg = "none" })
-
+	vim.api.nvim_create_autocmd("ColorScheme", { callback = update_lualine_colors })
+	update_lualine_colors() -- initial call
     end,
 }
