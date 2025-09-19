@@ -72,7 +72,7 @@ return {
 						'buffers',
 						show_filename_only = false,
 						mode = 0,
-						max_length = math.floor(vim.o.columns * 2 / 3),
+						max_length = vim.o.columns,
 						filetype_names = {
 							telescope = "Telescope",
 							dashboard = "Dashboard",

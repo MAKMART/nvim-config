@@ -53,21 +53,8 @@ function M.setup()
 
     map('n', '<leader>bd', ':bdelete<CR>', opts)
 
-    local function move_and_center(direction)
-        return function()
-            if vim.fn.mode():match("[vV]") then
-                vim.cmd("normal! " .. direction)
-                vim.cmd("normal! zz")
-                vim.cmd("normal! gv")
-            else
-                vim.cmd("normal! " .. direction)
-                vim.cmd("normal! zz")
-            end
-        end
-    end
-
-    map({ "n", "v" }, "<C-j>", move_and_center("j"), { desc = "Move down and center" })
-    map({ "n", "v" }, "<C-k>", move_and_center("k"), { desc = "Move up and center" })
+    map("n", "<C-d>", "<C-d>zz", { noremap = true, silent = true });
+    map("n", "<C-u>", "<C-u>zz", { noremap = true, silent = true });
 
 end
 
