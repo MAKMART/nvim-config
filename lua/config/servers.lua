@@ -7,4 +7,5 @@ return {
     "glsl_analyzer",	-- For GLSL shader syntax higlightning
     "cmake",		-- CMake syntax higlightning
     "jdtls",		-- Java
+    "rust_analyzer",	-- Rust
 }
