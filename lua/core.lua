@@ -56,12 +56,3 @@ vim.api.nvim_create_autocmd("ModeChanged", {
   once = true,
   callback = disable_arrow_keys,
 })
-
-require("config.remap")
--- Schedule the keymaps setup on VimEnter event
-vim.api.nvim_create_autocmd("VimEnter", {
-    callback = function()
-        require("utils.floaterminal").setup()
-        require("config.remap").setup()
-    end,
-})

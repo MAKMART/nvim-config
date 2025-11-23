@@ -20,8 +20,13 @@ function M.setup()
     map('n', '<leader>pv', ':Explore<CR>', opts)
     map('n', '<leader>pf', ':Telescope find_files<CR>', opts)
 
+    --runner mappings
+    map('n', '<leader>db', function() require("utils.project_runner").build("debug") end)
+    map('n', '<leader>rb', function() require("utils.project_runner").build("release") end)
+    map('n', '<leader>r',  function() require("utils.project_runner").run("debug") end)
+    map('n', '<leader>R',  function() require("utils.project_runner").run("release") end)
 
-    map('n', '<leader>rn', vim.lsp.buf.rename, { desc = 'LSP: Rename Symbol' })
+
 
     map('n', '<leader>cf', function()
         vim.lsp.buf.format()
