@@ -28,8 +28,8 @@ function M.build(build_type)
 		vim.notify("Unsupported project type: " .. project_type, vim.log.levels.ERROR)
 		return
 	end
-
-	local cmd = runner.build(build_type)
+	local cmd
+	cmd = runner.build(build_type)
 	if not cmd then
 		vim.notify("Cannot find build command", vim.log.levels.ERROR)
 		return
@@ -58,13 +58,14 @@ function M.run(build_type)
 	end
 
 	local cmd
-	if runner == "cmake" then
-		cmd = runner.run(root, build_type, require("utils.cmake_runner").find_executable_in_dir)
+	if project_type == "cmake" then
+		cmd = runner.run(root, build_type)
+	elseif project_type == "rust" then
+		cmd = runner.run(build_type)
 	end
-	cmd = runner.run(build_type)
 
 	if not cmd then
-		vim.notify("Cannot find run command", vim.log.levels.ERROR)
+		vim.notify("Nothing to run", vim.log.levels.INFO)
 		return
 	end
 
