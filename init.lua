@@ -4,7 +4,6 @@ require("remap")
 vim.api.nvim_create_autocmd("VimEnter", {
     callback = function()
         require("remap").setup()
-        require("utils.floaterminal").setup()
     end,
 })
 require("lazy_bootstrap")

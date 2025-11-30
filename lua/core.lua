@@ -9,17 +9,21 @@ vim.opt.updatetime = 300
 vim.wo.relativenumber = true
 vim.wo.number = true
 vim.wo.signcolumn = "yes"
-vim.o.ambiwidth = "double"
+vim.opt.ambiwidth = "double"
 
+vim.opt.modeline = false       -- don’t parse modelines in every file
+vim.opt.matchtime = 0          -- reduces highlight match delay
+vim.opt.showmode = false       -- if your statusline already shows mode
+vim.opt.ruler = false          -- reduces redraws slightly
 
 vim.opt.expandtab = false      -- use real tabs
 vim.opt.shiftwidth = 8         -- 1 tab = 8 spaces (visually)
 vim.opt.tabstop = 8            -- how big a tab character is
-vim.opt.softtabstop = 0        -- backspace deletes 1 tab, not spaces
+vim.opt.softtabstop = -1        -- backspace deletes 1 tab, not spaces
 
 vim.opt.lazyredraw = true
 vim.opt.path:append("**")    -- Search subfolders with `:find`
-vim.opt.wildmenu = true      -- Enhanced command-line completion
+vim.opt.wildmode = { "longest", "list", "full" }      -- Enhanced command-line completion
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
@@ -30,6 +34,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.diagnostic.config({
       virtual_text = true,
       virtual_lines = false,
+      update_in_insert = false,
     })
   end,
 })
@@ -39,20 +44,4 @@ vim.filetype.add({
     rml = "html",
     rcss = "css",
   }
-})
-
--- Disable arrow keys
-local function disable_arrow_keys()
-    local opts = { noremap = true, silent = false }
-    vim.keymap.set('', '<Up>',    '<Cmd>echo "Use hjkl!"<CR>', opts)
-    vim.keymap.set('', '<Down>',  '<Cmd>echo "Use hjkl!"<CR>', opts)
-    vim.keymap.set('', '<Left>',  '<Cmd>echo "Use hjkl!"<CR>', opts)
-    vim.keymap.set('', '<Right>', '<Cmd>echo "Use hjkl!"<CR>', opts)
-end
-
--- Use an autocommand to set keymaps lazily on first normal mode entry
-vim.api.nvim_create_autocmd("ModeChanged", {
-  pattern = "i:n",  --Insert to Normal mode transition (first time you leave insert)
-  once = true,
-  callback = disable_arrow_keys,
 })
