@@ -1,4 +1,4 @@
-vim.opt.termguicolors = true
+vim.opt.termguicolors = false
 vim.loader.enable()
 
 -- Options

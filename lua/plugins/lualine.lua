@@ -28,6 +28,7 @@ return {
 		local fg_command = get_hl_color("Statement", "foreground") or "#aaccff"
 		local fg_inactive= get_hl_color("Comment", "foreground") or "#888888"
 
+		-- For custom theme
 		local theme = {
 			normal   = { a = { fg = fg_normal, bg = bg_normal }, b = { fg = fg_normal, bg = bg_normal }, c = { fg = fg_normal, bg = bg_normal } },
 			insert   = { a = { fg = fg_insert, bg = bg_normal }, b = { fg = fg_insert, bg = bg_normal }, c = { fg = fg_insert, bg = bg_normal } },
