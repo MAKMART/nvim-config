@@ -3,7 +3,7 @@ return {
 	opts = {
 		-- list of servers to automatically install (MUST match the names used by nvim-lspconfig)
 		ensure_installed = {
-			"pyright",
+			--"pyright",
 			"rust_analyzer",
 			"clangd",
 			"lua_ls",		-- Lua

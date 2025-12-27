@@ -1,24 +1,15 @@
 return {
     "nvim-treesitter/nvim-treesitter",
-    event = { "BufReadPost", "BufNewFile" },
-    lazy = true,
-    build = function()
-        require("nvim-treesitter.install").update({ with_sync = true })()
-    end,
+    lazy = false,
+    build = ':TSUpdate',
     config = function()
-        require("nvim-treesitter.configs").setup({
-            ensure_installed = {
-                "bash", "css", "html", "javascript",
-                "json", "lua", "markdown", "python",
-                -- 👇 Notice C/C++ are intentionally omitted
-            },
-            sync_install = false,
-            auto_install = true,
-            highlight = {
-                enable = true,
-                disable = { "c", "cpp" },  -- 👈 Disable Treesitter highlighting for C/C++
-                additional_vim_regex_highlighting = false,
-            },
-        })
+	    require'nvim-treesitter'.setup {
+		    -- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
+		    install_dir = vim.fn.stdpath('data') .. '/site'
+	    }
+	    require'nvim-treesitter'.install {
+		    "bash", "css", "html", "javascript",
+		    "json", "lua", "markdown", "python",
+	    }
     end,
 }
