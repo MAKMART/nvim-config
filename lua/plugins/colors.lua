@@ -35,10 +35,24 @@ return {
 		vim.cmd("highlight! link NormalFloat Normal")
 		vim.cmd("highlight! link FloatBorder Normal")
 	end,
-	]]
 	"blazkowolf/gruber-darker.nvim",
 	priority = 1000,
 	config = function ()
 		vim.cmd.colorscheme("gruber-darker")
 	end
+	"RRethy/base16-nvim",
+	priority = 1000,
+	config = function ()
+		vim.cmd.colorscheme("base16-linux-vt")
+		--vim.cmd.colorscheme("base16-twilight")
+		--vim.cmd.colorscheme("base16-zenburn")
+	end,
+	]]
+	"luisiacc/handmade-hero-theme",
+	priority = 1000,
+	config = function ()
+		vim.cmd.colorscheme("handmade-hero-theme")
+		--vim.cmd.colorscheme("base16-twilight")
+		--vim.cmd.colorscheme("base16-zenburn")
+	end,
 }

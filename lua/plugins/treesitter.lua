@@ -4,12 +4,14 @@ return {
     build = ':TSUpdate',
     config = function()
 	    require'nvim-treesitter'.setup {
-		    -- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
-		    install_dir = vim.fn.stdpath('data') .. '/site'
-	    }
-	    require'nvim-treesitter'.install {
-		    "bash", "css", "html", "javascript",
-		    "json", "lua", "markdown", "python",
+		    ensure_installed = { "bash", "css", "html", "javascript", "json", "lua", "markdown", "python" },
+		    sync_install = false, -- don't block on startup
+		    auto_install = true,  -- install missing parsers when entering buffer
+		    highlight = {
+			    enable = true,
+		    },
+		    -- optional: custom install dir
+		    parser_install_dir = vim.fn.stdpath('data') .. '/site',
 	    }
     end,
 }

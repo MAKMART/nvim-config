@@ -9,6 +9,7 @@ return {
     dependencies = {
         { "nvim-lua/plenary.nvim", event = "VeryLazy" }, -- Defer plenary loading
         {
+		--Make sure to have fzy installed on you system (it should since it's part of C libs)
             "nvim-telescope/telescope-fzy-native.nvim",
             build = "make",
             -- Load extension only when Telescope is used
