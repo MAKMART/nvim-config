@@ -8,7 +8,9 @@ vim.opt.writebackup = true       -- safe write to temp file first, then replace
 vim.opt.updatetime = 300
 vim.wo.relativenumber = true
 vim.wo.number = true
-vim.wo.signcolumn = "yes"
+vim.wo.signcolumn = "no"
+vim.opt.foldcolumn = "0"
+vim.opt.numberwidth = 1
 vim.opt.ambiwidth = "double"
 
 vim.opt.modeline = false       -- don’t parse modelines in every file
@@ -17,8 +19,8 @@ vim.opt.showmode = false       -- if your statusline already shows mode
 vim.opt.ruler = false          -- reduces redraws slightly
 
 vim.opt.expandtab = false      -- use real tabs
-vim.opt.shiftwidth = 8         -- 1 tab = 8 spaces (visually)
-vim.opt.tabstop = 8            -- how big a tab character is
+vim.opt.shiftwidth = 4         -- 1 tab = 4 spaces (visually)
+vim.opt.tabstop = 4            -- how big a tab character is
 vim.opt.softtabstop = -1        -- backspace deletes 1 tab, not spaces
 
 vim.opt.lazyredraw = true
