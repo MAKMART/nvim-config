@@ -57,11 +57,12 @@ return {
 				lualine_c = {{ "filename", path = 3, symbols = { modified = "●", readonly = "🔒", unnamed = "[Unnamed]" } }, },
 				lualine_x = { "encoding", "fileformat", "filetype" },
 				lualine_y = { "progress" },
-				lualine_z = {
+				--[[lualine_z = {
 					function()
 						return os.date("%H:%M:%S - %A")
 					end,
 				},
+				]]
 			},
 			inactive_sections = {
 				lualine_c = { { "filename", path = 1 } },
