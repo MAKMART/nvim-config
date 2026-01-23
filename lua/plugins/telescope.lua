@@ -1,11 +1,6 @@
 return {
     "nvim-telescope/telescope.nvim",
     cmd = "Telescope", -- Keep lazy-loading on command
-    keys = {
-        { "<C-p>", function() require("telescope.builtin").git_files() end, desc = "Search git files" },
-        { "<leader>pf", function() require("telescope.builtin").find_files({ cwd = "" }) end, desc = "Find files in directory" },
-        { "<leader>ps", function() require("telescope.builtin").live_grep({ cwd = "" }) end, desc = "Grep in files in directory" },
-    },
     dependencies = {
         { "nvim-lua/plenary.nvim", event = "VeryLazy" }, -- Defer plenary loading
         {

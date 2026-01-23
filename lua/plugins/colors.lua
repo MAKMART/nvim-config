@@ -47,7 +47,6 @@ return {
 		--vim.cmd.colorscheme("base16-twilight")
 		--vim.cmd.colorscheme("base16-zenburn")
 	end,
-	]]
 	"luisiacc/handmade-hero-theme",
 	priority = 1000,
 	config = function ()
@@ -55,4 +54,14 @@ return {
 		--vim.cmd.colorscheme("base16-twilight")
 		--vim.cmd.colorscheme("base16-zenburn")
 	end,
+	]]
+	{
+		"ATTron/bebop.nvim",
+		lazy = false,
+		priority = 1000,
+		config = function()
+			require("bebop").setup()
+			vim.cmd([[colorscheme bebop]])
+		end,
+	}
 }

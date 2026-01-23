@@ -32,8 +32,8 @@ function M.setup()
 	map('n', '<Tab>', ':bnext<CR>', opts)
 	map('n', '<S-Tab>', ':bprev<CR>', opts)
 	map('n', '<leader>bd', ':bdelete<CR>', opts)
-	map("n", "<C-d>", "<C-d>zz", opts);
-	map("n", "<C-u>", "<C-u>zz", opts);
+	--map("n", "<C-d>", "<C-d>zz", opts);
+	--map("n", "<C-u>", "<C-u>zz", opts);
 
 	--Runner mappings
 	map('n', '<leader>db', function() require("utils.project_runner").build("debug") end)
@@ -54,6 +54,11 @@ function M.setup()
 	--LSP formatting / actions
 	map('n', '<leader>cf', function() vim.lsp.buf.format() end, { desc = 'LSP: Format Code' })
 	map('n', '<leader>ct', function() vim.lsp.buf.code_action({ context = { diagnostics = {} } }) end, { desc = "Run clang-tidy via LSP" })
+
+	--Telescope
+	map("n", "<C-p>", function() require("telescope.builtin").git_files() end, vim.tbl_extend("force", opts, { desc = "Search git files" }))
+	map("n", "<leader>pf", function() require("telescope.builtin").find_files({ cwd = "" }) end, vim.tbl_extend("force", opts, { desc = "Find files in directory" }))
+	map("n", "<leader>ps", function() require("telescope.builtin").live_grep({ cwd = "" }) end, vim.tbl_extend("force", opts, { desc = "Grep in files in directory" }))
 
 
 	-- ======================
@@ -105,6 +110,35 @@ function M.setup()
 
 
 
+end
+
+function M.cmp_mappings(cmp, luasnip)
+	local map = cmp.mapping
+	local select_opts = { behavior = cmp.SelectBehavior.Select }
+
+	return {
+		["<C-k>"] = map.select_prev_item(select_opts),
+		["<C-j>"] = map.select_next_item(select_opts),
+		["<C-b>"] = map.scroll_docs(-4),
+		["<C-f>"] = map.scroll_docs(4),
+		["<C-Space>"] = map.complete(),
+		["<C-e>"] = map.abort(),
+		["<CR>"] = map.confirm({ select = false }),
+		["<Tab>"] = map(function(fallback)
+			if luasnip.expand_or_jumpable() then
+				luasnip.expand_or_jump()
+			else
+				fallback()
+			end
+		end, { "i", "s" }),
+		["<S-Tab>"] = map(function(fallback)
+			if luasnip.jumpable(-1) then
+				luasnip.jump(-1)
+			else
+				fallback()
+			end
+		end, { "i", "s" }),
+	}
 end
 
 return M
